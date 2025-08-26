@@ -164,4 +164,21 @@ class TourPackageController extends Controller
             TourPackage::select('id','title')->orderByDesc('id')->get()
         );
     }
+    //to display the recent three packages
+    public function latest()
+    {
+        $packages = TourPackage::orderByDesc('created_at')
+            ->take(3)
+            ->get();
+
+        return response()->json($packages);
+    }
+
+   // to fetch package details on by one in new page publicly
+
+    public function showPublic($id)
+    {
+        $package = TourPackage::with('itineraries')->findOrFail($id);
+        return response()->json($package);
+    }
 }

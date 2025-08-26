@@ -5,6 +5,11 @@ use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\Admin\TourPackageController;
 use App\Http\Controllers\Admin\ItineraryController;
 
+//Public route adding point before Sanctum auth
+Route::get('/latest-packages', [TourPackageController::class, 'latest']);
+Route::get('/packages/{id}', [TourPackageController::class, 'showPublic']); // to fetch pack detials in new page
+
+
 Route::post('/admin-login', [AdminAuthController::class, 'login']);
 Route::post('/admin-logout', [AdminAuthController::class, 'logout'])->middleware('auth:sanctum');
 
@@ -22,6 +27,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/admin-packages/{id}', [TourPackageController::class, 'destroy']);
     Route::patch('/admin-packages/{id}/toggle', [TourPackageController::class, 'toggle']);
     Route::get('/admin-packages/all',[TourPackageController::class,'allPackages']);
+
+
 
     // Itineraries
     Route::get('/admin-packages/{package}/itineraries', [ItineraryController::class, 'index']);
