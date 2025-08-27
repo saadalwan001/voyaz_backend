@@ -23,8 +23,7 @@ class ItineraryController extends Controller
             'itineraries.*.day_title'   => 'required|string|max:255',
             'itineraries.*.description' => 'required|string',
             'itineraries.*.include_toggle' =>'boolean',
-            'itineraries.*.included_items' => 'array',
-            'itineraries.*.excluded_items' => 'array',
+
         ]);
 
         $created = $package->itineraries()->createMany($request->itineraries);
@@ -42,8 +41,7 @@ class ItineraryController extends Controller
             'day_title'   => 'required|string|max:255',
             'description' => 'required|string',
             'itineraries.*.include_toggle' =>'boolean',
-            'itineraries.*.included_items' => 'array',
-            'itineraries.*.excluded_items' => 'array',
+
         ]);
 
         $itinerary->update($request->only(['day_title', 'description', 'include_toggle', 'included_items', 'excluded_items']));

@@ -15,14 +15,12 @@ class Itinerary extends Model
         'day_title',
         'description',
         'include_toggle',
-        'included_items',
-        'excluded_items',
+
     ];
 
     protected $casts =[
         'include_toggle' => 'boolean',
-        'included_items' => 'array',
-        'excluded_items' => 'array',
+
 
     ];
 

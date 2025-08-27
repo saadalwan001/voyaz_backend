@@ -4,10 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\Admin\TourPackageController;
 use App\Http\Controllers\Admin\ItineraryController;
+use App\Http\Controllers\EnquiryController;
 
 //Public route adding point before Sanctum auth
 Route::get('/latest-packages', [TourPackageController::class, 'latest']);
 Route::get('/packages/{id}', [TourPackageController::class, 'showPublic']); // to fetch pack detials in new page
+Route::post('/send-enquiry', [EnquiryController::class, 'send']);
 
 
 Route::post('/admin-login', [AdminAuthController::class, 'login']);

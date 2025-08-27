@@ -19,12 +19,16 @@ class TourPackage extends Model
         'sub_image3',
         'sub_image4',
         'enabled',
+        'included_items',
+        'excluded_items',
 
     ];
 
     protected $casts=[
         'enabled' => 'boolean',
-        'total_days' => 'integer'
+        'total_days' => 'integer',
+        'included_items' => 'array',
+        'excluded_items' => 'array',
     ];
 
     public function itineraries(){

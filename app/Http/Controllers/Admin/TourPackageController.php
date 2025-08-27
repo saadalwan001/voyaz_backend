@@ -41,6 +41,9 @@ class TourPackageController extends Controller
                 'description' => 'required|string',
                 'enabled' => 'nullable|boolean',
 
+                'included_items' => 'nullable|array',
+                'excluded_items' => 'nullable|array',
+
                 'main_image' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
                 'sub_image1' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
                 'sub_image2' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
@@ -51,8 +54,7 @@ class TourPackageController extends Controller
                 'itineraries.*.day_title' => 'required_with:itineraries|string|max:255',
                 'itineraries.*.description' => 'required_with:itineraries|string',
                 'itineraries.*.include_toggle' => 'nullable|boolean',
-                'itineraries.*.included_items' => 'nullable|array',
-                'itineraries.*.excluded_items' => 'nullable|array',
+
             ]);
 
             $data = $validated;
@@ -65,6 +67,11 @@ class TourPackageController extends Controller
                 }
             }
 
+            // By default make it empty arrays if not given by the admin
+            $data['included_items'] = $validated['included_items']??[];
+            $data['excluded_items'] = $validated['excluded_items']??[];
+
+
             // Create package
             $package = TourPackage::create($data);
         } else {
@@ -75,8 +82,7 @@ class TourPackageController extends Controller
                 'itineraries.*.day_title' => 'required|string|max:255',
                 'itineraries.*.description' => 'required|string',
                 'itineraries.*.include_toggle' => 'nullable|boolean',
-                'itineraries.*.included_items' => 'nullable|array',
-                'itineraries.*.excluded_items' => 'nullable|array',
+
             ]);
 
             $package = TourPackage::findOrFail($validated['existing_package_id']);
@@ -89,8 +95,7 @@ class TourPackageController extends Controller
                     'day_title' => $it['day_title'] ?? '',
                     'description' => $it['description'] ?? '',
                     'include_toggle' => $it['include_toggle'] ?? false,
-                    'included_items' => $it['included_items'] ?? [],
-                    'excluded_items' => $it['excluded_items'] ?? [],
+
                 ];
             }, $validated['itineraries']);
 
@@ -110,6 +115,9 @@ class TourPackageController extends Controller
             'total_days'   => 'sometimes|required|integer|min:1',
             'description'  => 'sometimes|required|string',
             'enabled'      => 'sometimes|boolean',
+
+            'included_items' => 'nullable|array',
+            'excluded_items' => 'nullable|array',
 
             'main_image'   => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
             'sub_image1'   => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
@@ -132,6 +140,14 @@ class TourPackageController extends Controller
                 $path = $request->file($key)->store('packages', 'public');
                 $data[$key] = '/storage/' . $path;
             }
+        }
+
+        //make include and exclude empty if not provided
+        if(!isset($data['included_items'])){
+            $data['included_items']=$package->included_items??[];
+        }
+        if(!isset($data['excluded_items'])){
+            $data['excluded_items']=$package->excluded_items??[];
         }
 
         $package->update($data);
