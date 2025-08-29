@@ -34,6 +34,11 @@ class TourPackage extends Model
     public function itineraries(){
         return $this->hasMany(Itinerary::class);
     }
+
+    public function attractions()
+    {
+        return $this->belongsToMany(Attraction::class, 'attraction_tour_package');
+    }
 }
 
 

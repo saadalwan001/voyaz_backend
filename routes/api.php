@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\Admin\TourPackageController;
 use App\Http\Controllers\Admin\ItineraryController;
 use App\Http\Controllers\EnquiryController;
+use App\Http\Controllers\Admin\AttractionController;
 
 //Public route adding point before Sanctum auth
 Route::get('/latest-packages', [TourPackageController::class, 'latest']);
@@ -37,4 +38,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/admin-packages/{package}/itineraries', [ItineraryController::class, 'store']);
     Route::patch('/admin-itineraries/{itinerary}', [ItineraryController::class, 'update']);
     Route::delete('/admin-itineraries/{itinerary}', [ItineraryController::class, 'destroy']);
+
+    //Attraction & Experience related Images and other data routes
+    Route::get('/admin-attractions', [AttractionController::class, 'index']);
+    Route::get('/admin-attractions/{id}', [AttractionController::class, 'show']);
+    Route::post('/admin-attractions', [AttractionController::class, 'store']);
+    Route::patch('/admin-attractions/{id}', [AttractionController::class, 'update']);
+    Route::delete('/admin-attractions/{id}', [AttractionController::class, 'destroy']);
 });
