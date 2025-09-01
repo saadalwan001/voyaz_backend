@@ -10,18 +10,21 @@ use Illuminate\Support\Facades\DB;
 
 class TourPackageController extends Controller
 {
-    // List all tour packages with itinerary count
+    // List all tour packages with itinerary + attraction count
     public function index()
     {
         return response()->json(
-            TourPackage::withCount('itineraries')->orderByDesc('id')->get()
+            TourPackage::withCount('itineraries')
+                ->withCount('attractions')
+                ->orderByDesc('id')
+                ->get()
         );
     }
 
-    // Show single package with itineraries
+    // Show single package with itineraries + attractions
     public function show($id)
     {
-        $package = TourPackage::with('itineraries')->findOrFail($id);
+        $package = TourPackage::with(['itineraries', 'attractions'])->findOrFail($id);
         return response()->json($package);
     }
 
@@ -29,7 +32,7 @@ class TourPackageController extends Controller
     public function store(Request $request)
     {
         // Decode JSON arrays if sent as strings
-        foreach (['itineraries', 'included_items', 'excluded_items'] as $field) {
+        foreach (['itineraries', 'included_items', 'excluded_items', 'attractions'] as $field) {
             if ($request->has($field) && is_string($request->$field)) {
                 $request->merge([$field => json_decode($request->$field, true)]);
             }
@@ -39,21 +42,23 @@ class TourPackageController extends Controller
 
         if ($isNew) {
             $validated = $request->validate([
-                'title' => 'required|string|max:255',
-                'total_days' => 'required|integer|min:1',
-                'description' => 'required|string',
-                'enabled' => 'nullable|boolean',
-                'included_items' => 'nullable|array',
-                'excluded_items' => 'nullable|array',
-                'main_image' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
-                'sub_image1' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
-                'sub_image2' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
-                'sub_image3' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
-                'sub_image4' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
-                'itineraries' => 'sometimes|array',
+                'title'         => 'required|string|max:255',
+                'total_days'    => 'required|integer|min:1',
+                'description'   => 'required|string',
+                'enabled'       => 'nullable|boolean',
+                'included_items'=> 'nullable|array',
+                'excluded_items'=> 'nullable|array',
+                'main_image'    => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
+                'sub_image1'    => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
+                'sub_image2'    => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
+                'sub_image3'    => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
+                'sub_image4'    => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
+                'itineraries'   => 'sometimes|array',
                 'itineraries.*.day_title' => 'required_with:itineraries|string|max:255',
                 'itineraries.*.description' => 'required_with:itineraries|string',
                 'itineraries.*.include_toggle' => 'nullable|boolean',
+                'attractions'  => 'nullable|array',
+                'attractions.*'=> 'exists:attractions,id'
             ]);
 
             $data = $validated;
@@ -78,11 +83,14 @@ class TourPackageController extends Controller
                 'itineraries.*.day_title' => 'required|string|max:255',
                 'itineraries.*.description' => 'required|string',
                 'itineraries.*.include_toggle' => 'nullable|boolean',
+                'attractions'  => 'nullable|array',
+                'attractions.*'=> 'exists:attractions,id'
             ]);
 
             $package = TourPackage::findOrFail($validated['existing_package_id']);
         }
 
+        // Save itineraries
         if (!empty($validated['itineraries'])) {
             $itineraries = array_map(function($it) {
                 return [
@@ -95,16 +103,21 @@ class TourPackageController extends Controller
             $package->itineraries()->createMany($itineraries);
         }
 
-        return response()->json($package->load('itineraries'), 201);
+        // Sync attractions
+        if (!empty($validated['attractions'])) {
+            $package->attractions()->sync($validated['attractions']);
+        }
+
+        return response()->json($package->load(['itineraries', 'attractions']), 201);
     }
 
-    // Update package details along with itineraries
+    // Update package details along with itineraries + attractions
     public function update(Request $request, $id)
     {
         $package = TourPackage::findOrFail($id);
 
         // Decode JSON arrays if sent as strings
-        foreach (['itineraries', 'included_items', 'excluded_items'] as $field) {
+        foreach (['itineraries', 'included_items', 'excluded_items', 'attractions'] as $field) {
             if ($request->has($field) && is_string($request->$field)) {
                 $request->merge([$field => json_decode($request->$field, true)]);
             }
@@ -123,6 +136,8 @@ class TourPackageController extends Controller
             'sub_image3'   => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
             'sub_image4'   => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
             'itineraries'  => 'nullable|array',
+            'attractions'  => 'nullable|array',
+            'attractions.*'=> 'exists:attractions,id'
         ]);
 
         DB::transaction(function() use ($request, $package, $validated) {
@@ -163,9 +178,14 @@ class TourPackageController extends Controller
                     }
                 }
             }
+
+            // Sync attractions if provided
+            if (isset($validated['attractions'])) {
+                $package->attractions()->sync($validated['attractions']);
+            }
         });
 
-        return response()->json($package->load('itineraries'));
+        return response()->json($package->load(['itineraries', 'attractions']));
     }
 
     public function destroy($id)
@@ -198,7 +218,7 @@ class TourPackageController extends Controller
 
     public function showPublic($id)
     {
-        $package = TourPackage::with('itineraries')->findOrFail($id);
+        $package = TourPackage::with(['itineraries','attractions'])->findOrFail($id);
         return response()->json($package);
     }
 }

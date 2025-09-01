@@ -9,10 +9,17 @@ use Illuminate\Support\Facades\Storage;
 
 class AttractionController extends Controller
 {
+    //this is to return all the attraction cards for destination page
     public function index(){
         return response()->json(Attraction::orderByDesc('id')->get());
 
     }
+
+    //this is to show in attraction and experience page only latest 6
+    public function latest(){
+        return response()->json(Attraction::orderByDesc('id')->take(6)->get());
+    }
+
 
     //to show each attraction in frontend page
     public function show($id){
@@ -103,6 +110,10 @@ class AttractionController extends Controller
 
         return response()->json(['message' => 'Deleted successfully']);
     }
+
+
+
+
 
 
 

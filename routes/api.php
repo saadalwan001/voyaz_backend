@@ -13,6 +13,12 @@ Route::get('/packages/{id}', [TourPackageController::class, 'showPublic']); // t
 Route::post('/send-enquiry', [EnquiryController::class, 'send']);
 
 
+//public routes for attraction and destinations
+Route::get('/attractions',[AttractionController::class, 'index']);
+Route::get('/attractions/latest',[AttractionController::class, 'latest']);
+Route::get('/attractions/{id}', [AttractionController::class, 'show']);
+
+
 Route::post('/admin-login', [AdminAuthController::class, 'login']);
 Route::post('/admin-logout', [AdminAuthController::class, 'logout'])->middleware('auth:sanctum');
 
