@@ -17,6 +17,8 @@ Route::post('/send-enquiry', [EnquiryController::class, 'send']);
 Route::get('/attractions',[AttractionController::class, 'index']);
 Route::get('/attractions/latest',[AttractionController::class, 'latest']);
 Route::get('/attractions/{id}', [AttractionController::class, 'show']);
+Route::get('/attractions/{id}/tour-packages', [AttractionController::class, 'tourPackages']);
+
 
 
 Route::post('/admin-login', [AdminAuthController::class, 'login']);

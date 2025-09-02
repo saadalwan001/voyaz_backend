@@ -9,45 +9,53 @@ use Illuminate\Support\Facades\Storage;
 
 class AttractionController extends Controller
 {
-    //this is to return all the attraction cards for destination page
-    public function index(){
+    // Return all attraction cards for admin or frontend
+    public function index()
+    {
         return response()->json(Attraction::orderByDesc('id')->get());
-
     }
 
-    //this is to show in attraction and experience page only latest 6
-    public function latest(){
+    // Show only latest 6 attractions for frontend display
+    public function latest()
+    {
         return response()->json(Attraction::orderByDesc('id')->take(6)->get());
     }
 
-
-    //to show each attraction in frontend page
-    public function show($id){
-        $attraction=Attraction::findOrFail($id);
+    // Show single attraction by ID
+    public function show($id)
+    {
+        $attraction = Attraction::findOrFail($id);
         return response()->json($attraction);
     }
 
-    //store new attraction
+    // Return all tour packages linked to this attraction
+    public function tourPackages($id)
+    {
+        $attraction = Attraction::with('tourPackages')->findOrFail($id);
+        return response()->json($attraction->tourPackages);
+    }
+
+    // Store new attraction
     public function store(Request $request)
     {
-        $validated=$request->validate([
-            'title'=> 'required|string|max:225',
-            'description'=>'required|string',
-            'front_img'=> 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
-            'back_img'=> 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
+        $validated = $request->validate([
+            'title' => 'required|string|max:225',
+            'description' => 'required|string',
+            'front_img' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
+            'back_img' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
         ]);
 
-        if($request->hasFile('front_img')){
-            $path=$request->file('front_img')->store('attractions', 'public');
-            $validated['front_img']='/storage/'.$path;
+        if ($request->hasFile('front_img')) {
+            $path = $request->file('front_img')->store('attractions', 'public');
+            $validated['front_img'] = '/storage/' . $path;
         }
 
-        if($request->hasFile('back_img')){
-            $path=$request->file('back_img')->store('attractions', 'public');
-            $validated['back_img']='/storage/'.$path;
+        if ($request->hasFile('back_img')) {
+            $path = $request->file('back_img')->store('attractions', 'public');
+            $validated['back_img'] = '/storage/' . $path;
         }
 
-        $attraction=Attraction::create($validated);
+        $attraction = Attraction::create($validated);
 
         // Link selected tour packages (many-to-many)
         $attraction->tourPackages()->sync($request->input('tour_packages', []));
@@ -67,28 +75,41 @@ class AttractionController extends Controller
             'back_img' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:5120',
         ]);
 
+        // Handle Front Image
         if ($request->hasFile('front_img')) {
-            // Delete old image if exists
             if ($attraction->front_img) {
-                Storage::disk('public')->delete(str_replace('/storage/', '', $attraction->image));
+                Storage::disk('public')->delete(str_replace('/storage/', '', $attraction->front_img));
             }
             $path = $request->file('front_img')->store('attractions', 'public');
             $validated['front_img'] = '/storage/' . $path;
+        } elseif ($request->input('remove_front_img')) {
+            // Remove existing image if frontend requests deletion
+            if ($attraction->front_img) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $attraction->front_img));
+            }
+            $validated['front_img'] = null;
         }
+
+        // Handle Back Image
         if ($request->hasFile('back_img')) {
-            // Delete old image if exists
             if ($attraction->back_img) {
-                Storage::disk('public')->delete(str_replace('/storage/', '', $attraction->image));
+                Storage::disk('public')->delete(str_replace('/storage/', '', $attraction->back_img));
             }
             $path = $request->file('back_img')->store('attractions', 'public');
             $validated['back_img'] = '/storage/' . $path;
+        } elseif ($request->input('remove_back_img')) {
+            if ($attraction->back_img) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $attraction->back_img));
+            }
+            $validated['back_img'] = null;
         }
-
 
         $attraction->update($validated);
 
-        // Update linked tour packages
-        $attraction->tourPackages()->sync($request->input('tour_packages', []));
+        // Update linked tour packages safely
+        if ($request->has('tour_packages')) {
+            $attraction->tourPackages()->sync($request->input('tour_packages', []));
+        }
 
         return response()->json($attraction);
     }
@@ -101,20 +122,13 @@ class AttractionController extends Controller
         if ($attraction->front_img) {
             Storage::disk('public')->delete(str_replace('/storage/', '', $attraction->front_img));
         }
+
         if ($attraction->back_img) {
             Storage::disk('public')->delete(str_replace('/storage/', '', $attraction->back_img));
         }
-
 
         $attraction->delete();
 
         return response()->json(['message' => 'Deleted successfully']);
     }
-
-
-
-
-
-
-
 }
