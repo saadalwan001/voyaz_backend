@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\BlogController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\Admin\TourPackageController;
@@ -53,4 +55,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/admin-attractions', [AttractionController::class, 'store']);
     Route::patch('/admin-attractions/{id}', [AttractionController::class, 'update']);
     Route::delete('/admin-attractions/{id}', [AttractionController::class, 'destroy']);
+
+    //to  blog insertion, update and delete
+    Route::get('/admin-blogs', [BlogController::class, 'index']);
+    Route::post('/admin-blogs',[BlogController::class, 'store']);
+    Route::get('/admin-blogs/{id}', [BlogController::class,'show']);
+    Route::patch('/admin-blogs/{id}',[BlogController::class, 'update']);
+    Route::delete('/admin-bogs/{id}', [BlogController::class,'destroy']);
+
+    //to provide admin name and id as dropdown
+    Route::get('/admins', [AdminController::class, 'index']);
+
+
 });
