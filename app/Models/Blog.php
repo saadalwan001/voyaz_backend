@@ -15,7 +15,7 @@ class Blog extends Model
         'category'
 
 
-        ];
+    ];
 
     public function admin()
     {

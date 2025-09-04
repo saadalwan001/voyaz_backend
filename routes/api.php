@@ -61,7 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/admin-blogs',[BlogController::class, 'store']);
     Route::get('/admin-blogs/{id}', [BlogController::class,'show']);
     Route::patch('/admin-blogs/{id}',[BlogController::class, 'update']);
-    Route::delete('/admin-bogs/{id}', [BlogController::class,'destroy']);
+    Route::delete('/admin-blogs/{id}', [BlogController::class,'destroy']);
 
     //to provide admin name and id as dropdown
     Route::get('/admins', [AdminController::class, 'index']);
