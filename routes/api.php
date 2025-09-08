@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\TourPackageController;
 use App\Http\Controllers\Admin\ItineraryController;
 use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\Admin\AttractionController;
+use App\Http\Controllers\CommentController;
 
 //Public route adding point before Sanctum auth
 Route::get('/latest-packages', [TourPackageController::class, 'latest']);
@@ -20,6 +21,14 @@ Route::get('/attractions',[AttractionController::class, 'index']);
 Route::get('/attractions/latest',[AttractionController::class, 'latest']);
 Route::get('/attractions/{id}', [AttractionController::class, 'show']);
 Route::get('/attractions/{id}/tour-packages', [AttractionController::class, 'tourPackages']);
+
+//public routes for comments
+Route::post('/comments', [CommentController::class, 'store']);
+Route::get('/comments/{blogId}',[CommentController::class,'index']);
+
+//public routes for company contact
+Route::get('/company-contact', [companyContactController::class, 'index']);
+Route::put('/company-contact/{id}', [CompanyContactController::class, 'update']);
 
 
 
