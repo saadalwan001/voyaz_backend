@@ -34,6 +34,11 @@ Route::get('/comments/{blogId}',[CommentController::class,'index']);
 Route::get('/company-contact', [CompanyContactController::class, 'index']);
 Route::put('/company-contact/{id}', [CompanyContactController::class, 'update']);
 
+//blog frontend visible parts
+Route::get('/admin-blogs', [BlogController::class, 'index']);
+Route::get('/admin-blogs/{id}', [BlogController::class,'show']);
+
+
 
 
 Route::post('/admin-login', [AdminAuthController::class, 'login']);
@@ -70,9 +75,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/admin-attractions/{id}', [AttractionController::class, 'destroy']);
 
     //to  blog insertion, update and delete
-    Route::get('/admin-blogs', [BlogController::class, 'index']);
     Route::post('/admin-blogs',[BlogController::class, 'store']);
-    Route::get('/admin-blogs/{id}', [BlogController::class,'show']);
     Route::patch('/admin-blogs/{id}',[BlogController::class, 'update']);
     Route::delete('/admin-blogs/{id}', [BlogController::class,'destroy']);
 
