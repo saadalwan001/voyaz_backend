@@ -9,6 +9,10 @@ use App\Http\Controllers\Admin\ItineraryController;
 use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\Admin\AttractionController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\Admin\CompanyContactController;
+
+
+
 
 //Public route adding point before Sanctum auth
 Route::get('/latest-packages', [TourPackageController::class, 'latest']);
@@ -27,7 +31,7 @@ Route::post('/comments', [CommentController::class, 'store']);
 Route::get('/comments/{blogId}',[CommentController::class,'index']);
 
 //public routes for company contact
-Route::get('/company-contact', [companyContactController::class, 'index']);
+Route::get('/company-contact', [CompanyContactController::class, 'index']);
 Route::put('/company-contact/{id}', [CompanyContactController::class, 'update']);
 
 
@@ -74,6 +78,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //to provide admin name and id as dropdown
     Route::get('/admins', [AdminController::class, 'index']);
+
+    // fetch admin details to profile page
+    Route::get('/admin-profile', [AdminController::class, 'getProfile']);
+
+
+    //to update admin profile
+    Route::patch('/admin-profile', [AdminController::class, 'updateProfile']);
 
 
 });

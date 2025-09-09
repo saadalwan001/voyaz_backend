@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\companyContact;
 use Illuminate\Http\Request;
 
-class companyContactController extends Controller
+class CompanyContactController extends Controller
 {
     //fetching contact info
     public function index()
@@ -16,7 +16,7 @@ class companyContactController extends Controller
 
     }
 
-    //updting contact info
+    //updating contact info
     public function update(Request $request, $id){
         $validated = $request->validate([
             'address'=>'required|string|max:500',
@@ -29,11 +29,11 @@ class companyContactController extends Controller
         ]);
 
         $contact=companyContact::findOrFail($id);
-        $contact -> updated($validated);
+        $contact -> update($validated);
 
         return response()->json([
-            'message' => 'contact infor is updated successfully!',
-            'contect' => $contact
+            'message' => 'contact info is updated successfully!',
+            'contact' => $contact
 
         ]);
     }
